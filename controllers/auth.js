@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/User");
+const AuthToken = require("../models/AuthToken");
 
 module.exports.registerUser = (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -70,17 +71,29 @@ module.exports.loginUser = (req, res) => {
   else if (!password)
     return res.status(400).json({
       code: "password_required",
-    })
+    });
   else {
-    User.findOne({email, password})
-    .then(data => {
+    User.findOne({ email, password }).then((data) => {
       if (data) {
-        res.status(200).send("success");
+        const token = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+        const authToken = new AuthToken({
+          email: data.email,
+          token: `${token}`,
+        });
+        authToken
+          .save()
+          .then((tokenData) => {
+            res.status(200).send({
+              token: tokenData.token,
+            });
+          })
+          .catch((err) => console.error(err));
+      } else {
+        res.status(404).json({
+          code: "invalid_user"
+        });
       }
-      else {
-        res.status(200).send("fail");
-      }
-    })
+    });
   }
   // res.send(req.body);
 };
