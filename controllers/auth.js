@@ -95,5 +95,32 @@ module.exports.loginUser = (req, res) => {
       }
     });
   }
-  // res.send(req.body);
 };
+
+module.exports.logoutUser = (req, res) => {
+  const { email, token } = req.body;
+  AuthToken.findOne({email, token})
+  .then(data => {
+    if (data) {
+      AuthToken.deleteOne({email, token})
+      .then(() => {
+        res.status(200).json({
+          code: "deleted",
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        res.status(400).json(err);
+      })
+    }
+    else {
+      res.status(404).json({
+        code: "no_session_found",
+      })
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(400).json(err);
+  })
+}
