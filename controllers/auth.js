@@ -60,3 +60,27 @@ module.exports.registerUser = (req, res) => {
       .catch((err) => console.error(err));
   }
 };
+
+module.exports.loginUser = (req, res) => {
+  const { email, password } = req.body;
+  if (!email)
+    return res.status(400).json({
+      code: "email_required",
+    });
+  else if (!password)
+    return res.status(400).json({
+      code: "password_required",
+    })
+  else {
+    User.findOne({email, password})
+    .then(data => {
+      if (data) {
+        res.status(200).send("success");
+      }
+      else {
+        res.status(200).send("fail");
+      }
+    })
+  }
+  // res.send(req.body);
+};
