@@ -30,3 +30,14 @@ module.exports.saveNote = (req, res) => {
       });
   }
 };
+
+module.exports.getNotes = (req, res) => {
+  Note.find()
+    .then((data) => {
+      res.status(200).json(data);
+    })
+    .catch((err) => {
+      logger.error(`Server error while getting notes - ${err}`);
+      res.status(500).json(err);
+    });
+};
