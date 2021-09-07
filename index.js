@@ -10,6 +10,11 @@ app.use(express.json());
 // routes
 app.use("/", auth);
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // start server
 const PORT = process.env.PORT || 2000;
 app.listen(PORT, () => console.log(`Server started at ${PORT}`));

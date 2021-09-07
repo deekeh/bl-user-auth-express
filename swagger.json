@@ -1,0 +1,112 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "BL User auth",
+    "description": "API description in Markdown.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/register": {
+      "post": {
+        "tags": ["User Authentication"],
+        "summary": "Register a user.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Login Data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["firstName", "lastName", "email", "password"],
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Register a user and get registered user `object` back from the server.",
+        "produces": "application/json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": ["User Authentication"],
+        "summary": "Login user.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Login Data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Login a user and get login token from the server.",
+        "produces": "application/json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "delete": {
+        "tags": ["User Authentication"],
+        "summary": "Logout user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Logout Data",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["email", "token"],
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Logout user",
+        "produces": "application/json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}
