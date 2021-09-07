@@ -4,6 +4,8 @@ const app = express();
 const mongoose = require("mongoose");
 const auth = require("./routes/auth");
 
+const logger = require("./utils/logger");
+
 // middlewares
 app.use(express.json());
 
@@ -23,7 +25,7 @@ app.listen(PORT, () => console.log(`Server started at ${PORT}`));
 // connect to database
 mongoose.connect(process.env.DB_URL+"bl-users", (err) => {
   if (err) {
-    return console.error("Connection error", err);
+    return logger.error("Connection error", err);
   }
-  return console.log("Connection successful");
+  return logger.info("Connection successful");
 });
