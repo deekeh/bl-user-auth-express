@@ -47,7 +47,7 @@ module.exports.editNote = (req, res) => {
     return res.status(200).json(data);
   })
   .catch(err => {
-    logger.debug(`Employee id: ${id} edit error - ${err.message || err}`);
+    logger.debug(`Note id: ${id} edit error - ${err.message || err}`);
     return res.status(404).json({
       code: err.message || err,
     })
@@ -80,12 +80,12 @@ module.exports.archiveNote = (req, res) => {
     })
     .catch((err) => {
       if (err.message == "already_archived") {
-        logger.debug(`Note ${req.params.id} archive error - ${err.message}`);
+        logger.debug(`Note id: ${req.params.id} archive error - ${err.message}`);
         return res.status(400).json({
           code: err.message,
         });
       } else {
-        logger.debug(`Note ${req.params.id} archive error - not_found`);
+        logger.debug(`Note id: ${req.params.id} archive error - not_found`);
         res.status(404).json({
           message: `Note id: ${req.params.id} not found`,
         });
@@ -109,12 +109,12 @@ module.exports.deleteNote = (req, res) => {
     })
     .catch((err) => {
       if (err.message == "not_found") {
-        logger.debug(`Note ${req.params.id} delete error - ${err.message}`);
+        logger.debug(`Note id: ${req.params.id} delete error - ${err.message}`);
         res.status(404).json({
           code: err.message,
         });
       } else {
-        logger.debug(`Note ${req.params.id} delete error - ${err}`);
+        logger.debug(`Note id: ${req.params.id} delete error - ${err}`);
         res.status(404).json({
           message: err,
         });
