@@ -21,12 +21,15 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // start server
 const PORT = process.env.PORT || 2000;
-app.listen(PORT, () => console.log(`Server started at ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server started at ${PORT}`);
+  logger.silly(`Server started at ${PORT}`);
+});
 
 // connect to database
 mongoose.connect(process.env.DB_URL + "bl-users", (err) => {
   if (err) {
-    return logger.error("Connection error", err);
+    return logger.error("DB Connection error", err);
   }
-  return logger.info("Connection successful");
+  return logger.silly("DB Connection successful");
 });
