@@ -33,26 +33,25 @@ module.exports.saveNote = (req, res) => {
 };
 
 module.exports.editNote = (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   Note.findById(id)
-  .then(data => {
-    if (data) {
-      return Note.findByIdAndUpdate(id, {...req.body});
-    }
-    else {
-      return Promise.reject("not_found");
-    }
-  })
-  .then(data => {
-    return res.status(200).json(data);
-  })
-  .catch(err => {
-    logger.debug(`Note id: ${id} edit error - ${err.message || err}`);
-    return res.status(404).json({
-      code: err.message || err,
+    .then((data) => {
+      if (data) {
+        return Note.findByIdAndUpdate(id, { ...req.body });
+      } else {
+        return Promise.reject("not_found");
+      }
     })
-  })
-}
+    .then((data) => {
+      return res.status(200).json(data);
+    })
+    .catch((err) => {
+      logger.debug(`Note id: ${id} edit error - ${err.message || err}`);
+      return res.status(404).json({
+        code: err.message || err,
+      });
+    });
+};
 
 module.exports.getNotes = (req, res) => {
   Note.find()
@@ -80,7 +79,9 @@ module.exports.archiveNote = (req, res) => {
     })
     .catch((err) => {
       if (err.message == "already_archived") {
-        logger.debug(`Note id: ${req.params.id} archive error - ${err.message}`);
+        logger.debug(
+          `Note id: ${req.params.id} archive error - ${err.message}`
+        );
         return res.status(400).json({
           code: err.message,
         });
