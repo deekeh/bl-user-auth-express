@@ -32,6 +32,28 @@ module.exports.saveNote = (req, res) => {
   }
 };
 
+module.exports.editNote = (req, res) => {
+  const {id} = req.params;
+  Note.findById(id)
+  .then(data => {
+    if (data) {
+      return Note.findByIdAndUpdate(id, {...req.body});
+    }
+    else {
+      return Promise.reject("not_found");
+    }
+  })
+  .then(data => {
+    return res.status(200).json(data);
+  })
+  .catch(err => {
+    logger.debug(`Employee id: ${id} edit error - ${err.message || err}`);
+    return res.status(404).json({
+      code: err.message || err,
+    })
+  })
+}
+
 module.exports.getNotes = (req, res) => {
   Note.find()
     .then((data) => {
