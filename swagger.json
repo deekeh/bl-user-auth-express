@@ -2,8 +2,8 @@
   "swagger": "2.0",
   "info": {
     "title": "BL User auth",
-    "description": "API description in Markdown.",
-    "version": "1.0.0"
+    "description": "This documentation guides the user through the APIs availabe in the system.",
+    "version": "1.1.0"
   },
   "paths": {
     "/register": {
@@ -106,6 +106,123 @@
             "description": "OK"
           }
         }
+      }
+    },
+    "/notes": {
+      "post": {
+        "tags": ["Notes"],
+        "summary": "Save a note",
+        "description": "Save a new note with title, description and color",
+        "produces": "application/json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Note Data",
+            "schema": {
+              "type": "object",
+              "required": ["email", "token"],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "get": {
+        "tags": ["Notes"],
+        "summary": "Get all saved notes",
+        "description": "Fetch an array containing all the saved notes",
+        "produces": "application/json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notes/{id}": {
+      "patch": {
+        "tags": ["Notes"],
+        "summary": "Edit a note",
+        "description": "Edit any one or more of the note fields with an ID",
+        "produces": "application/json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "ID of the note to be edited"
+          },
+          {
+            "in": "body",
+            "name": "Note Data",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/notes/archive/{id}": {
+      "patch": {
+        "tags": ["Notes"],
+        "description": "Archive a note",
+        "produces": "application/json",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "ID of the note to be edited"
+          }
+        ]
+      }
+    },
+    "/notes/delete/{id}": {
+      "patch": {
+        "tags": ["Notes"],
+        "description": "Archive a note",
+        "produces": "application/json",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "ID of the note to be deleted"
+          }
+        ]
       }
     }
   }
