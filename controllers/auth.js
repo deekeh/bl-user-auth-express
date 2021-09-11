@@ -1,4 +1,15 @@
-const mongoose = require("mongoose");
+/*
+  NOTE: Authentication by saving a token to DB
+  has been discontinued & replaced by a newer
+  method 'jsonwebtoken' which generates unique
+  tokens by using unique user details like _id
+  & email and encodes them into the token. The
+  generated token is sent back as response.
+
+  Edited by: DK
+  Date: 11/09/2021 05:45:00 PM
+*/
+
 const User = require("../models/User");
 const AuthToken = require("../models/AuthToken");
 const logger = require("../utils/logger");

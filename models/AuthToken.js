@@ -3,7 +3,7 @@
   the authentication token generated when a
   user gives correct email & password. The
   token was previously generated using an
-  in-build function Math.random() which is
+  in-built function Math.random() which is
   not a very reliable way to generate token
   and needed tokens to be saved in the DB
 
