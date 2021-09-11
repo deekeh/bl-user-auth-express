@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const AuthToken = require("../models/AuthToken");
 const logger = require("../utils/logger");
+const jwt = require("jsonwebtoken");
 
 module.exports.registerUser = (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -85,19 +86,25 @@ module.exports.loginUser = (req, res) => {
   else {
     User.findOne({ email, password }).then((data) => {
       if (data) {
-        const token = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-        const authToken = new AuthToken({
-          email: data.email,
-          token: `${token}`,
-        });
-        authToken
-          .save()
-          .then((tokenData) => {
-            res.status(200).send({
-              token: tokenData.token,
-            });
-          })
-          .catch((err) => console.error(err));
+        const token = jwt.sign(
+          { email: data.email, _id: data._id },
+          process.env.ACCESS_SECRET
+        );
+        res.status(201).json({ token });
+
+        // OLD CODE FOR AUTHENTICATION WITHOUT JWT
+        // const token = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+        // const authToken = new AuthToken({
+        //   token,
+        // });
+        // authToken
+        //   .save()
+        //   .then((tokenData) => {
+        //     res.status(200).send({
+        //       token: tokenData.token,
+        //     });
+        //   })
+        //   .catch((err) => console.error(err));
       } else {
         logger.error("login validation error - invalid user");
         res.status(404).json({
