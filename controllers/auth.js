@@ -15,6 +15,8 @@ const AuthToken = require("../models/AuthToken");
 const logger = require("../utils/logger");
 const jwt = require("jsonwebtoken");
 
+const bcrypt = require("bcrypt");
+
 module.exports.registerUser = (req, res) => {
   const { firstName, lastName, email, password } = req.body;
   if (!firstName) {
@@ -68,15 +70,23 @@ module.exports.registerUser = (req, res) => {
             code: "user_already_registered",
           });
         else {
-          const user = new User(req.body);
-          user
-            .save()
-            .then((data) => {
-              return res.json(data);
+          bcrypt
+            .genSalt(10)
+            .then((salt) => bcrypt.hash(req.body.password, salt))
+            .then((hash) => {
+              const user = new User({ ...req.body, password: hash });
+              return user;
             })
-            .catch((err) => {
-              logger.error(`registration error on server - +${err}`);
-              return res.status(400).send(err);
+            .then((user) => {
+              user
+                .save()
+                .then((data) => {
+                  return res.json(data);
+                })
+                .catch((err) => {
+                  logger.error(`registration error on server - +${err}`);
+                  return res.status(400).send(err);
+                });
             });
         }
       })
@@ -95,13 +105,21 @@ module.exports.loginUser = (req, res) => {
       code: "password_required",
     });
   else {
-    User.findOne({ email, password }).then((data) => {
+    User.findOne({ email }).then((data) => {
       if (data) {
-        const token = jwt.sign(
-          { email: data.email, _id: data._id },
-          process.env.ACCESS_SECRET
-        );
-        res.status(201).json({ token });
+        bcrypt.compare(req.body.password, data.password).then((result) => {
+          if (result) {
+            const token = jwt.sign(
+              { email: data.email, _id: data._id },
+              process.env.ACCESS_SECRET
+            );
+            res.status(201).json({ token });
+          } else {
+            res.status(401).json({
+              code: "wrong_password",
+            });
+          }
+        });
 
         // OLD CODE FOR AUTHENTICATION WITHOUT JWT
         // const token = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
@@ -117,9 +135,9 @@ module.exports.loginUser = (req, res) => {
         //   })
         //   .catch((err) => console.error(err));
       } else {
-        logger.error("login validation error - invalid user");
+        logger.error("login validation error - user not found");
         res.status(404).json({
-          code: "invalid_user",
+          code: "user_not_found",
         });
       }
     });
