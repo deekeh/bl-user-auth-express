@@ -11,7 +11,7 @@ const logger = require("./utils/logger");
 app.use(express.json());
 
 // routes
-app.use("/", auth);
+app.use("/u", auth);
 app.use("/notes", notes);
 
 const swaggerUi = require("swagger-ui-express");

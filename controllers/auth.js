@@ -10,12 +10,16 @@
   Date: 11/09/2021 05:45:00 PM
 */
 
+require("dotenv/config");
 const User = require("../models/User");
 const AuthToken = require("../models/AuthToken");
 const logger = require("../utils/logger");
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const SMTPTransport = require("nodemailer/lib/smtp-transport");
+const { urlencoded } = require("express");
 
 module.exports.registerUser = (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -113,6 +117,11 @@ module.exports.loginUser = (req, res) => {
               { email: data.email, _id: data._id },
               process.env.ACCESS_SECRET
             );
+            req.user = {};
+            req.user.id = data._id.toString();
+            req.user.email = data.email;
+            logger.silly(`logged in user ${req.user.email}/${req.user.id}`);
+
             res.status(201).json({ token });
           } else {
             res.status(401).json({
@@ -169,5 +178,70 @@ module.exports.logoutUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       res.status(400).json(err);
+    });
+};
+
+// reset password
+module.exports.resetPassword = (req, res) => {
+  const { email } = req.query;
+  console.log(email);
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        const resetToken = jwt.sign({ email }, process.env.ACCESS_SECRET);
+
+        // send mail to the user
+        const smtpTransport = nodemailer.createTransport({
+          service: process.env.MAIL_SERVICE,
+          auth: {
+            user: process.env.MAIL_ID,
+            pass: process.env.MAIL_PASSWORD,
+          },
+        });
+        smtpTransport.sendMail(
+          {
+            from: `${process.env.MAIL_NAME} <${process.env.MAIL_ID}>`,
+            to: email,
+            subject: "Test mail",
+            html: `
+            <div>Hello ${user.firstName},</div>
+            <br />
+            <div>
+              We got a password reset request from you. Please click <a href="http://${req.header(
+                "host"
+              )}/u/reset/verify/${encodeURI(
+              resetToken
+            )}">here</a> to reset your password.
+            </div>
+            <div><i>Paste this link in the browser if the link is un-clickable: http://${req.header(
+              "host"
+            )}/u/reset/verify/${encodeURI(resetToken)}</i></div>
+            `,
+          },
+          (err, response) => {
+            if (err) {
+              console.error(err);
+              logger.error(err);
+              return res.send(500).json({
+                code: "internal_server_error",
+              });
+            } else {
+              return res.status(200).json({
+                code: "mail_sent",
+              });
+            }
+          }
+        );
+      } else {
+        return res.status(404).json({
+          code: "user_not_found",
+        });
+      }
+    })
+    .catch((err) => {
+      logger.error(`Server error while resetting password - ${err}`);
+      return res.status(500).json({
+        code: "internal_server_error",
+      });
     });
 };
