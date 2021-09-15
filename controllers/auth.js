@@ -202,7 +202,7 @@ module.exports.resetPassword = (req, res) => {
           {
             from: `${process.env.MAIL_NAME} <${process.env.MAIL_ID}>`,
             to: email,
-            subject: "Test mail",
+            subject: "Password Reset",
             html: `
             <div>Hello ${user.firstName},</div>
             <br />
