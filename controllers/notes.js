@@ -19,14 +19,17 @@ module.exports.saveNote = (req, res) => {
       code: "color_required",
     });
   } else {
-    const note = new Note({ title, description, color });
+    const note = new Note({ title, description, color, creator: req.user._id });
     note
       .save()
       .then((data) => {
-        return res.status(201).json(data);
+        if (data.creator === req.user._id) return res.status(201).json(data);
       })
       .catch((err) => {
         logger.error(`Server error while creating note - ${err}`);
+        res.status(500).json({
+          code: "internal_server_error"
+        })
       });
   }
 };
@@ -36,7 +39,8 @@ module.exports.editNote = (req, res) => {
   Note.findById(id)
     .then((data) => {
       if (data) {
-        return Note.findByIdAndUpdate(id, { ...req.body });
+        if (data.creator === req.user._id) return Note.findByIdAndUpdate(id, { ...req.body });
+        return Promise.reject("not_found");
       } else {
         return Promise.reject("not_found");
       }
@@ -53,7 +57,7 @@ module.exports.editNote = (req, res) => {
 };
 
 module.exports.getNotes = (req, res) => {
-  Note.find()
+  Note.find({creator: req.user._id})
     .then((data) => {
       res.status(200).json(data);
     })
@@ -65,7 +69,16 @@ module.exports.getNotes = (req, res) => {
 
 module.exports.archiveNote = (req, res) => {
   Note.findById(req.params.id)
+    // .then(data => {
+    //   if (data && data[0]._id.toString() != req.user._id) return res.status(404).json({
+    //     code: "not_found",
+    //   })
+    //   return data;
+    // })
     .then((data) => {
+      console.log(data.creator, req.user._id);
+      if (data.creator !== req.user._id)
+      return Promise.reject("not_found");
       if (data.isArchived) {
         return Promise.reject("already_archived");
       }
@@ -95,10 +108,12 @@ module.exports.archiveNote = (req, res) => {
 
 module.exports.deleteNote = (req, res) => {
   const { id } = req.params;
+  const creator = req.user._id;
   Note.findById(id)
     .then((data) => {
       if (data) {
         // if (data.isDeleted === true) return Promise.reject("not_foundx");
+        if (data.creator !== creator) return Promise.reject("not_found");
         return Note.findByIdAndUpdate(id, { isDeleted: true });
       } else {
         return Promise.reject("not_found");

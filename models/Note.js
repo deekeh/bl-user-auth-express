@@ -21,6 +21,10 @@ const Note = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  creator: {
+    type: String,
+    required: true
+  }
 });
 
 module.exports = mongoose.model("note", Note);
