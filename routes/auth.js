@@ -8,6 +8,7 @@ router.post("/login", auth.loginUser);
 
 router.delete("/logout", auth.logoutUser);
 
+router.post("/reset/verify/:token", auth.resetPasswordVerify);
 router.post("/reset", auth.resetPassword);
 
 module.exports = router;

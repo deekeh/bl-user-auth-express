@@ -245,3 +245,53 @@ module.exports.resetPassword = (req, res) => {
       });
     });
 };
+
+// verify password reset link and set new password
+module.exports.resetPasswordVerify = (req, res) => {
+  const { token: encodedToken } = req.params;
+  const token = decodeURI(encodedToken);
+  const { password } = req.body;
+
+  if (!encodedToken)
+    return res.status(400).json({
+      code: "token_not_provided",
+    });
+  if (!password)
+    return res.status(400).json({
+      code: "password_not_provided",
+    });
+
+  jwt.verify(token, process.env.ACCESS_SECRET, (err, user) => {
+    if (err) {
+      logger.error(`Server error while resetting password - ${err}`);
+      return res.status(500).json({
+        code: "internal_server_error",
+      });
+    }
+    User.findOne().then((data) => {
+      if (data) {
+        bcrypt
+          .genSalt(10)
+          .then((salt) => bcrypt.hash(password, salt))
+          .then((hash) => {
+            User.findOneAndUpdate(
+              { email: user.email },
+              { password: hash }
+            ).then(() => {
+              return res.json({
+                email: user.email,
+              });
+            });
+          })
+          .catch((err) => {
+            logger.error(
+              `internal_server_error while password-reset verification - ${err}`
+            );
+            return res.status(500).json({
+              code: "internal_server_error",
+            });
+          });
+      }
+    });
+  });
+};
