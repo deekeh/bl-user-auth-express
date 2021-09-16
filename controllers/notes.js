@@ -136,3 +136,25 @@ module.exports.deleteNote = (req, res) => {
       }
     });
 };
+
+module.exports.getArchivedNotes = (req, res) => {
+  Note.find({creator: req.user._id, isArchived: true})
+    .then((data) => {
+      res.status(200).json(data);
+    })
+    .catch((err) => {
+      logger.error(`Server error while getting notes - ${err}`);
+      res.status(500).json(err);
+    });
+};
+
+module.exports.getDeletedNotes = (req, res) => {
+  Note.find({creator: req.user._id, isDeleted: true})
+    .then((data) => {
+      res.status(200).json(data);
+    })
+    .catch((err) => {
+      logger.error(`Server error while getting notes - ${err}`);
+      res.status(500).json(err);
+    });
+};

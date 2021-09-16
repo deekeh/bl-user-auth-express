@@ -10,7 +10,10 @@ router.use(authenticateToken);
 router.post("/", notes.saveNote);
 router.patch("/:id", notes.editNote);
 router.get("/", notes.getNotes);
+
 router.patch("/archive/:id", notes.archiveNote);
 router.patch("/delete/:id", notes.deleteNote);
+router.get("/archived", notes.getArchivedNotes);
+router.get("/deleted", notes.getDeletedNotes);
 
 module.exports = router;
